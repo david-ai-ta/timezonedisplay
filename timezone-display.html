@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Clock</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    /* ── Add city bar ── */
+    .add-bar {
+      display: flex;
+      gap: 10px;
+      max-width: 560px;
+      margin: 0 auto 32px;
+    }
+
+    .add-bar input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #2d3748;
+      background: #1a1f2e;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .add-bar input:focus { border-color: #4f8ef7; }
+    .add-bar input::placeholder { color: #4a5568; }
+
+    .add-bar button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #4f8ef7;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .add-bar button:hover { background: #3b7de8; }
+
+    /* ── Autocomplete dropdown ── */
+    .autocomplete-wrap { position: relative; flex: 1; display: flex; }
+    .autocomplete-wrap input { width: 100%; }
+
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+    .dropdown.open { display: block; }
+    .dropdown-item {
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      transition: background 0.15s;
+    }
+    .dropdown-item:hover, .dropdown-item.active { background: #2d3748; }
+    .dropdown-item small { color: #64748b; margin-left: 6px; font-size: 0.78rem; }
+
+    /* ── Clock grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 20px 18px 16px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #4a5568; }
+
+    .card-remove {
+      position: absolute;
+      top: 10px; right: 12px;
+      background: none;
+      border: none;
+      color: #4a5568;
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .card-remove:hover { color: #f87171; }
+
+    .card-city {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 2px;
+      padding-right: 20px;
+    }
+
+    .card-region {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 14px;
+    }
+
+    .card-time {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #4f8ef7;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-date {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .card-offset {
+      font-size: 0.72rem;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .empty-hint {
+      text-align: center;
+      color: #374151;
+      font-size: 0.95rem;
+      margin-top: 60px;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<h1>World Clock</h1>
+
+<div class="add-bar">
+  <div class="autocomplete-wrap">
+    <input type="text" id="cityInput" placeholder="Search city or timezone…" autocomplete="off" />
+    <div class="dropdown" id="dropdown"></div>
+  </div>
+  <button onclick="addSelectedCity()">Add</button>
+</div>
+
+<div class="grid" id="grid"></div>
+<p class="empty-hint" id="emptyHint">Search and add cities above to get started.</p>
+
+<script>
+// ── Timezone data: [display city, IANA timezone, region] ──────────────────
+const CITIES = [
+  ["Abu Dhabi","Asia/Dubai","UAE"],
+  ["Accra","Africa/Accra","Ghana"],
+  ["Addis Ababa","Africa/Addis_Ababa","Ethiopia"],
+  ["Adelaide","Australia/Adelaide","Australia"],
+  ["Amsterdam","Europe/Amsterdam","Netherlands"],
+  ["Anchorage","America/Anchorage","USA"],
+  ["Athens","Europe/Athens","Greece"],
+  ["Atlanta","America/New_York","USA"],
+  ["Auckland","Pacific/Auckland","New Zealand"],
+  ["Baghdad","Asia/Baghdad","Iraq"],
+  ["Baku","Asia/Baku","Azerbaijan"],
+  ["Bangkok","Asia/Bangkok","Thailand"],
+  ["Barcelona","Europe/Madrid","Spain"],
+  ["Beijing","Asia/Shanghai","China"],
+  ["Beirut","Asia/Beirut","Lebanon"],
+  ["Berlin","Europe/Berlin","Germany"],
+  ["Bogotá","America/Bogota","Colombia"],
+  ["Brisbane","Australia/Brisbane","Australia"],
+  ["Brussels","Europe/Brussels","Belgium"],
+  ["Bucharest","Europe/Bucharest","Romania"],
+  ["Budapest","Europe/Budapest","Hungary"],
+  ["Buenos Aires","America/Argentina/Buenos_Aires","Argentina"],
+  ["Cairo","Africa/Cairo","Egypt"],
+  ["Calgary","America/Edmonton","Canada"],
+  ["Cape Town","Africa/Johannesburg","South Africa"],
+  ["Caracas","America/Caracas","Venezuela"],
+  ["Casablanca","Africa/Casablanca","Morocco"],
+  ["Chicago","America/Chicago","USA"],
+  ["Colombo","Asia/Colombo","Sri Lanka"],
+  ["Copenhagen","Europe/Copenhagen","Denmark"],
+  ["Dallas","America/Chicago","USA"],
+  ["Dar es Salaam","Africa/Dar_es_Salaam","Tanzania"],
+  ["Delhi","Asia/Kolkata","India"],
+  ["Denver","America/Denver","USA"],
+  ["Dhaka","Asia/Dhaka","Bangladesh"],
+  ["Dubai","Asia/Dubai","UAE"],
+  ["Dublin","Europe/Dublin","Ireland"],
+  ["Edmonton","America/Edmonton","Canada"],
+  ["Frankfurt","Europe/Berlin","Germany"],
+  ["Guatemala City","America/Guatemala","Guatemala"],
+  ["Hanoi","Asia/Ho_Chi_Minh","Vietnam"],
+  ["Havana","America/Havana","Cuba"],
+  ["Helsinki","Europe/Helsinki","Finland"],
+  ["Ho Chi Minh City","Asia/Ho_Chi_Minh","Vietnam"],
+  ["Hong Kong","Asia/Hong_Kong","China"],
+  ["Honolulu","Pacific/Honolulu","USA"],
+  ["Houston","America/Chicago","USA"],
+  ["Istanbul","Europe/Istanbul","Turkey"],
+  ["Jakarta","Asia/Jakarta","Indonesia"],
+  ["Jerusalem","Asia/Jerusalem","Israel"],
+  ["Johannesburg","Africa/Johannesburg","South Africa"],
+  ["Kabul","Asia/Kabul","Afghanistan"],
+  ["Karachi","Asia/Karachi","Pakistan"],
+  ["Kathmandu","Asia/Kathmandu","Nepal"],
+  ["Kuala Lumpur","Asia/Kuala_Lumpur","Malaysia"],
+  ["Kuwait City","Asia/Kuwait","Kuwait"],
+  ["Kyiv","Europe/Kiev","Ukraine"],
+  ["Lagos","Africa/Lagos","Nigeria"],
+  ["Lahore","Asia/Karachi","Pakistan"],
+  ["Lima","America/Lima","Peru"],
+  ["Lisbon","Europe/Lisbon","Portugal"],
+  ["London","Europe/London","UK"],
+  ["Los Angeles","America/Los_Angeles","USA"],
+  ["Madrid","Europe/Madrid","Spain"],
+  ["Manila","Asia/Manila","Philippines"],
+  ["Melbourne","Australia/Melbourne","Australia"],
+  ["Mexico City","America/Mexico_City","Mexico"],
+  ["Miami","America/New_York","USA"],
+  ["Milan","Europe/Rome","Italy"],
+  ["Minneapolis","America/Chicago","USA"],
+  ["Minsk","Europe/Minsk","Belarus"],
+  ["Montreal","America/Toronto","Canada"],
+  ["Moscow","Europe/Moscow","Russia"],
+  ["Mumbai","Asia/Kolkata","India"],
+  ["Nairobi","Africa/Nairobi","Kenya"],
+  ["New York","America/New_York","USA"],
+  ["Oslo","Europe/Oslo","Norway"],
+  ["Ottawa","America/Toronto","Canada"],
+  ["Paris","Europe/Paris","France"],
+  ["Perth","Australia/Perth","Australia"],
+  ["Phoenix","America/Phoenix","USA"],
+  ["Prague","Europe/Prague","Czech Republic"],
+  ["Riyadh","Asia/Riyadh","Saudi Arabia"],
+  ["Rome","Europe/Rome","Italy"],
+  ["San Francisco","America/Los_Angeles","USA"],
+  ["Santiago","America/Santiago","Chile"],
+  ["São Paulo","America/Sao_Paulo","Brazil"],
+  ["Seattle","America/Los_Angeles","USA"],
+  ["Seoul","Asia/Seoul","South Korea"],
+  ["Shanghai","Asia/Shanghai","China"],
+  ["Singapore","Asia/Singapore","Singapore"],
+  ["Sofia","Europe/Sofia","Bulgaria"],
+  ["Stockholm","Europe/Stockholm","Sweden"],
+  ["Sydney","Australia/Sydney","Australia"],
+  ["Taipei","Asia/Taipei","Taiwan"],
+  ["Tashkent","Asia/Tashkent","Uzbekistan"],
+  ["Tehran","Asia/Tehran","Iran"],
+  ["Tel Aviv","Asia/Jerusalem","Israel"],
+  ["Tokyo","Asia/Tokyo","Japan"],
+  ["Toronto","America/Toronto","Canada"],
+  ["Vancouver","America/Vancouver","Canada"],
+  ["Vienna","Europe/Vienna","Austria"],
+  ["Warsaw","Europe/Warsaw","Poland"],
+  ["Washington DC","America/New_York","USA"],
+  ["Winnipeg","America/Winnipeg","Canada"],
+  ["Yangon","Asia/Rangoon","Myanmar"],
+  ["Zurich","Europe/Zurich","Switzerland"],
+];
+
+// ── State ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "worldclock_cities";
+let selected = []; // [{city, tz, region}]
+let activeDropdownIndex = -1;
+let filteredCities = [];
+let pendingCity = null; // city object chosen from dropdown
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) selected = JSON.parse(raw);
+  } catch { selected = []; }
+  if (!selected.length) {
+    // defaults
+    selected = [
+      { city: "New York",   tz: "America/New_York",    region: "USA" },
+      { city: "London",     tz: "Europe/London",        region: "UK" },
+      { city: "Dubai",      tz: "Asia/Dubai",           region: "UAE" },
+      { city: "Singapore",  tz: "Asia/Singapore",       region: "Singapore" },
+      { city: "Tokyo",      tz: "Asia/Tokyo",           region: "Japan" },
+    ];
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
+}
+
+// ── Rendering ──────────────────────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  const hint = document.getElementById("emptyHint");
+  grid.innerHTML = "";
+  hint.style.display = selected.length ? "none" : "block";
+
+  selected.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = `card-${i}`;
+    card.innerHTML = `
+      <button class="card-remove" title="Remove" onclick="removeCity(${i})">✕</button>
+      <div class="card-city">${item.city}</div>
+      <div class="card-region">${item.region}</div>
+      <div class="card-time" id="time-${i}">--:--:--</div>
+      <div class="card-date" id="date-${i}"></div>
+      <div class="card-offset" id="offset-${i}"></div>
+    `;
+    grid.appendChild(card);
+  });
+  updateClocks();
+}
+
+function updateClocks() {
+  const now = new Date();
+  selected.forEach((item, i) => {
+    const timeFmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: item.tz,
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+    });
+    const dateFmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: item.tz,
+      weekday: "short", day: "numeric", month: "short", year: "numeric",
+    });
+    const offsetFmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: item.tz, timeZoneName: "shortOffset",
+    });
+
+    const tel = document.getElementById(`time-${i}`);
+    const del = document.getElementById(`date-${i}`);
+    const oel = document.getElementById(`offset-${i}`);
+    if (!tel) return;
+
+    tel.textContent = timeFmt.format(now);
+    del.textContent = dateFmt.format(now);
+
+    // extract UTC offset string
+    const parts = offsetFmt.formatToParts(now);
+    const offPart = parts.find(p => p.type === "timeZoneName");
+    oel.textContent = offPart ? offPart.value : "";
+  });
+}
+
+// ── Add / Remove ───────────────────────────────────────────────────────────
+function addSelectedCity() {
+  let toAdd = pendingCity;
+
+  if (!toAdd) {
+    // try exact match on input text
+    const val = document.getElementById("cityInput").value.trim().toLowerCase();
+    if (!val) return;
+    toAdd = CITIES.find(([c]) => c.toLowerCase() === val);
+    if (!toAdd) {
+      // pick first filtered match
+      const inp = document.getElementById("cityInput").value.trim().toLowerCase();
+      const match = CITIES.find(([c, tz, r]) =>
+        c.toLowerCase().includes(inp) || tz.toLowerCase().includes(inp) || r.toLowerCase().includes(inp)
+      );
+      if (!match) { flashInput(); return; }
+      toAdd = match;
+    }
+  }
+
+  const [city, tz, region] = toAdd;
+  if (!selected.some(s => s.city === city && s.tz === tz)) {
+    selected.push({ city, tz, region });
+    save();
+    renderGrid();
+  }
+  clearInput();
+}
+
+function removeCity(i) {
+  selected.splice(i, 1);
+  save();
+  renderGrid();
+}
+
+function flashInput() {
+  const inp = document.getElementById("cityInput");
+  inp.style.borderColor = "#f87171";
+  setTimeout(() => inp.style.borderColor = "", 600);
+}
+
+function clearInput() {
+  document.getElementById("cityInput").value = "";
+  pendingCity = null;
+  closeDropdown();
+}
+
+// ── Autocomplete ───────────────────────────────────────────────────────────
+function openDropdown(items) {
+  const dd = document.getElementById("dropdown");
+  dd.innerHTML = "";
+  activeDropdownIndex = -1;
+  filteredCities = items;
+
+  items.slice(0, 60).forEach(([city, tz, region], i) => {
+    const div = document.createElement("div");
+    div.className = "dropdown-item";
+    div.innerHTML = `${city} <small>${region}</small>`;
+    div.onmousedown = (e) => {
+      e.preventDefault();
+      pendingCity = [city, tz, region];
+      document.getElementById("cityInput").value = city;
+      closeDropdown();
+    };
+    dd.appendChild(div);
+  });
+
+  dd.classList.toggle("open", items.length > 0);
+}
+
+function closeDropdown() {
+  document.getElementById("dropdown").classList.remove("open");
+  activeDropdownIndex = -1;
+}
+
+function highlightDropdownItem(idx) {
+  const items = document.querySelectorAll(".dropdown-item");
+  items.forEach((el, i) => el.classList.toggle("active", i === idx));
+  if (items[idx]) items[idx].scrollIntoView({ block: "nearest" });
+}
+
+document.getElementById("cityInput").addEventListener("input", function () {
+  pendingCity = null;
+  const q = this.value.trim().toLowerCase();
+  if (!q) { closeDropdown(); return; }
+  const matches = CITIES.filter(([c, tz, r]) =>
+    c.toLowerCase().includes(q) || tz.toLowerCase().includes(q) || r.toLowerCase().includes(q)
+  );
+  openDropdown(matches);
+});
+
+document.getElementById("cityInput").addEventListener("keydown", function (e) {
+  const items = document.querySelectorAll(".dropdown-item");
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    activeDropdownIndex = Math.min(activeDropdownIndex + 1, items.length - 1);
+    highlightDropdownItem(activeDropdownIndex);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    activeDropdownIndex = Math.max(activeDropdownIndex - 1, 0);
+    highlightDropdownItem(activeDropdownIndex);
+  } else if (e.key === "Enter") {
+    if (activeDropdownIndex >= 0 && filteredCities[activeDropdownIndex]) {
+      const [city, tz, region] = filteredCities[activeDropdownIndex];
+      pendingCity = [city, tz, region];
+      document.getElementById("cityInput").value = city;
+      closeDropdown();
+    } else {
+      addSelectedCity();
+    }
+  } else if (e.key === "Escape") {
+    closeDropdown();
+  }
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".autocomplete-wrap")) closeDropdown();
+});
+
+// ── Tick ───────────────────────────────────────────────────────────────────
+loadSaved();
+renderGrid();
+setInterval(updateClocks, 1000);
+</script>
+</body>
+</html>
