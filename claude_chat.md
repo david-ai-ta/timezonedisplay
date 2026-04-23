@@ -75,3 +75,24 @@ Checked git and GitHub CLI — installed and authenticated as `david-ai-ta`.
 - Made initial commit and pushed to `main`
 
 ---
+
+### User
+> add new feature for the app. I was in a group of global office, so some people are at the different places. So I want to create some people with names in the app, and assign them into the item of chosen city. So I can clearly see what time are their local places.
+
+### Claude
+Added a **Team** feature to the World Clock app.
+
+**How it works:**
+- A collapsible **Team** panel sits below the city search bar
+- Add a team member by typing their name and selecting which city they're based in
+- Each person appears as a colored avatar (initials) on their assigned city's clock card
+- Reassign someone to a different city using the inline dropdown in the Team panel
+- Removing a city automatically marks its people as "Unassigned" (highlighted in amber) — they remain in the team list so you can reassign them
+- People data is saved to `localStorage` separately under key `worldclock_people`
+- Team panel open/closed state is also remembered
+
+**Data model added:**
+- Each person: `{ id, name, cityKey }` — `cityKey` is `"city|timezone"` string matching a selected city
+- Avatar color is deterministically derived from the person's name (consistent across sessions)
+
+---

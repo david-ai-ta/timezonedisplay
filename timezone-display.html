@@ -29,7 +29,7 @@
       display: flex;
       gap: 10px;
       max-width: 560px;
-      margin: 0 auto 32px;
+      margin: 0 auto 20px;
     }
 
     .add-bar input {
@@ -46,7 +46,7 @@
     .add-bar input:focus { border-color: #4f8ef7; }
     .add-bar input::placeholder { color: #4a5568; }
 
-    .add-bar button {
+    .btn-primary {
       padding: 10px 20px;
       border-radius: 8px;
       border: none;
@@ -58,7 +58,7 @@
       transition: background 0.2s;
       white-space: nowrap;
     }
-    .add-bar button:hover { background: #3b7de8; }
+    .btn-primary:hover { background: #3b7de8; }
 
     /* ── Autocomplete dropdown ── */
     .autocomplete-wrap { position: relative; flex: 1; display: flex; }
@@ -87,10 +87,186 @@
     .dropdown-item:hover, .dropdown-item.active { background: #2d3748; }
     .dropdown-item small { color: #64748b; margin-left: 6px; font-size: 0.78rem; }
 
+    /* ── Team section ── */
+    .team-section {
+      max-width: 860px;
+      margin: 0 auto 32px;
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .team-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .team-header:hover { background: #222840; }
+
+    .team-header-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .team-count-badge {
+      font-size: 0.72rem;
+      background: #2d3748;
+      color: #64748b;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .team-toggle {
+      margin-left: auto;
+      color: #4a5568;
+      font-size: 0.8rem;
+      transition: transform 0.2s;
+    }
+    .team-toggle.open { transform: rotate(180deg); }
+
+    .team-body {
+      display: none;
+      border-top: 1px solid #2d3748;
+      padding: 16px 18px;
+    }
+    .team-body.open { display: block; }
+
+    /* Add person form */
+    .add-person-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .add-person-bar input[type="text"] {
+      flex: 1;
+      min-width: 120px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #2d3748;
+      background: #0f1117;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .add-person-bar input[type="text"]:focus { border-color: #4f8ef7; }
+    .add-person-bar input[type="text"]::placeholder { color: #4a5568; }
+
+    .add-person-bar select {
+      flex: 1;
+      min-width: 160px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #2d3748;
+      background: #0f1117;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .add-person-bar select:focus { border-color: #4f8ef7; }
+
+    .btn-sm {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #4f8ef7;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-sm:hover { background: #3b7de8; }
+
+    /* People list */
+    .people-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .person-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #0f1117;
+      border: 1px solid #2d3748;
+    }
+
+    .person-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0f1117;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .person-name {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      font-weight: 500;
+      min-width: 80px;
+    }
+
+    .person-city-select {
+      flex: 1;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid #2d3748;
+      background: #1a1f2e;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .person-city-select:focus { border-color: #4f8ef7; }
+    .person-city-select.unassigned { color: #f59e0b; border-color: #78350f; }
+
+    .btn-remove-person {
+      background: none;
+      border: none;
+      color: #4a5568;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-remove-person:hover { color: #f87171; }
+
+    .people-empty {
+      font-size: 0.85rem;
+      color: #374151;
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+
     /* ── Clock grid ── */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 16px;
       max-width: 1100px;
       margin: 0 auto;
@@ -103,6 +279,8 @@
       padding: 20px 18px 16px;
       position: relative;
       transition: border-color 0.2s;
+      display: flex;
+      flex-direction: column;
     }
     .card:hover { border-color: #4a5568; }
 
@@ -153,6 +331,40 @@
       margin-top: 2px;
     }
 
+    /* People on card */
+    .card-people {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #1e2a3a;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-person {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-person-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #0f1117;
+      flex-shrink: 0;
+    }
+
+    .card-person-name {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
     .empty-hint {
       text-align: center;
       color: #374151;
@@ -170,19 +382,42 @@
 
 <h1>World Clock</h1>
 
+<!-- City search -->
 <div class="add-bar">
   <div class="autocomplete-wrap">
     <input type="text" id="cityInput" placeholder="Search city or timezone…" autocomplete="off" />
     <div class="dropdown" id="dropdown"></div>
   </div>
-  <button onclick="addSelectedCity()">Add</button>
+  <button class="btn-primary" onclick="addSelectedCity()">Add City</button>
 </div>
 
+<!-- Team panel -->
+<div class="team-section">
+  <div class="team-header" onclick="toggleTeam()">
+    <span class="team-header-title">Team</span>
+    <span class="team-count-badge" id="teamCountBadge">0 people</span>
+    <span class="team-toggle" id="teamToggle">▼</span>
+  </div>
+  <div class="team-body" id="teamBody">
+    <div class="add-person-bar">
+      <input type="text" id="personNameInput" placeholder="Name" maxlength="40" />
+      <select id="personCitySelect">
+        <option value="">— assign to city —</option>
+      </select>
+      <button class="btn-sm" onclick="addPerson()">Add Person</button>
+    </div>
+    <div class="people-list" id="peopleList">
+      <p class="people-empty">No team members yet. Add someone above.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Clocks -->
 <div class="grid" id="grid"></div>
 <p class="empty-hint" id="emptyHint">Search and add cities above to get started.</p>
 
 <script>
-// ── Timezone data: [display city, IANA timezone, region] ──────────────────
+// ── Timezone data ─────────────────────────────────────────────────────────
 const CITIES = [
   ["Abu Dhabi","Asia/Dubai","UAE"],
   ["Accra","Africa/Accra","Ghana"],
@@ -293,35 +528,170 @@ const CITIES = [
   ["Zurich","Europe/Zurich","Switzerland"],
 ];
 
-// ── State ──────────────────────────────────────────────────────────────────
-const STORAGE_KEY = "worldclock_cities";
-let selected = []; // [{city, tz, region}]
+// ── State ─────────────────────────────────────────────────────────────────
+const STORAGE_CITIES  = "worldclock_cities";
+const STORAGE_PEOPLE  = "worldclock_people";
+const STORAGE_TEAM_OPEN = "worldclock_team_open";
+
+let selected = [];   // [{city, tz, region}]
+let people   = [];   // [{id, name, cityKey}]  cityKey = city+"|"+tz, or "" if unassigned
+
 let activeDropdownIndex = -1;
 let filteredCities = [];
-let pendingCity = null; // city object chosen from dropdown
+let pendingCity = null;
+
+// ── Persistence ───────────────────────────────────────────────────────────
+function cityKey(c) { return c.city + "|" + c.tz; }
 
 function loadSaved() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) selected = JSON.parse(raw);
+    const rc = localStorage.getItem(STORAGE_CITIES);
+    if (rc) selected = JSON.parse(rc);
   } catch { selected = []; }
+
   if (!selected.length) {
-    // defaults
     selected = [
-      { city: "New York",   tz: "America/New_York",    region: "USA" },
-      { city: "London",     tz: "Europe/London",        region: "UK" },
-      { city: "Dubai",      tz: "Asia/Dubai",           region: "UAE" },
-      { city: "Singapore",  tz: "Asia/Singapore",       region: "Singapore" },
-      { city: "Tokyo",      tz: "Asia/Tokyo",           region: "Japan" },
+      { city: "New York",  tz: "America/New_York",  region: "USA" },
+      { city: "London",    tz: "Europe/London",      region: "UK" },
+      { city: "Dubai",     tz: "Asia/Dubai",         region: "UAE" },
+      { city: "Singapore", tz: "Asia/Singapore",     region: "Singapore" },
+      { city: "Tokyo",     tz: "Asia/Tokyo",         region: "Japan" },
     ];
+  }
+
+  try {
+    const rp = localStorage.getItem(STORAGE_PEOPLE);
+    if (rp) people = JSON.parse(rp);
+  } catch { people = []; }
+}
+
+function saveCities()  { localStorage.setItem(STORAGE_CITIES, JSON.stringify(selected)); }
+function savePeople()  { localStorage.setItem(STORAGE_PEOPLE, JSON.stringify(people)); }
+
+// ── Avatar helpers ────────────────────────────────────────────────────────
+const AVATAR_COLORS = [
+  "#4f8ef7","#f7914f","#4ecb71","#f74f7a","#c44ff7",
+  "#f7d54f","#4ff7e8","#f76060","#60b4f7","#a78bfa",
+];
+
+function nameToColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+
+function initials(name) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function avatarHTML(name, size) {
+  const color = nameToColor(name);
+  const ini   = initials(name);
+  return `<div class="${size === 'sm' ? 'card-person-avatar' : 'person-avatar'}" style="background:${color}">${ini}</div>`;
+}
+
+// ── Team panel ────────────────────────────────────────────────────────────
+function toggleTeam() {
+  const body    = document.getElementById("teamBody");
+  const toggle  = document.getElementById("teamToggle");
+  const isOpen  = body.classList.toggle("open");
+  toggle.classList.toggle("open", isOpen);
+  localStorage.setItem(STORAGE_TEAM_OPEN, isOpen ? "1" : "0");
+}
+
+function restoreTeamState() {
+  const open = localStorage.getItem(STORAGE_TEAM_OPEN) !== "0";
+  if (open) {
+    document.getElementById("teamBody").classList.add("open");
+    document.getElementById("teamToggle").classList.add("open");
   }
 }
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
+function renderTeamPanel() {
+  // Update badge
+  const badge = document.getElementById("teamCountBadge");
+  badge.textContent = `${people.length} ${people.length === 1 ? "person" : "people"}`;
+
+  // Rebuild city dropdown options
+  const sel = document.getElementById("personCitySelect");
+  const prev = sel.value;
+  sel.innerHTML = `<option value="">— assign to city —</option>`;
+  selected.forEach(c => {
+    const k = cityKey(c);
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = `${c.city} (${c.region})`;
+    sel.appendChild(opt);
+  });
+  if (prev) sel.value = prev;
+
+  // Rebuild people list
+  const list = document.getElementById("peopleList");
+  list.innerHTML = "";
+
+  if (!people.length) {
+    list.innerHTML = `<p class="people-empty">No team members yet. Add someone above.</p>`;
+    return;
+  }
+
+  people.forEach((p, idx) => {
+    const cityExists = p.cityKey && selected.some(c => cityKey(c) === p.cityKey);
+    const row = document.createElement("div");
+    row.className = "person-row";
+
+    // Build city options for inline reassign select
+    let cityOptions = `<option value="">— Unassigned —</option>`;
+    selected.forEach(c => {
+      const k = cityKey(c);
+      cityOptions += `<option value="${k}" ${p.cityKey === k ? "selected" : ""}>${c.city} (${c.region})</option>`;
+    });
+
+    row.innerHTML = `
+      ${avatarHTML(p.name, 'lg')}
+      <span class="person-name">${escHtml(p.name)}</span>
+      <select class="person-city-select ${!cityExists ? 'unassigned' : ''}"
+              onchange="reassignPerson(${idx}, this.value)">
+        ${cityOptions}
+      </select>
+      <button class="btn-remove-person" title="Remove" onclick="removePerson(${idx})">✕</button>
+    `;
+    list.appendChild(row);
+  });
 }
 
-// ── Rendering ──────────────────────────────────────────────────────────────
+function addPerson() {
+  const nameEl = document.getElementById("personNameInput");
+  const cityEl = document.getElementById("personCitySelect");
+  const name = nameEl.value.trim();
+  if (!name) { flashEl(nameEl); return; }
+
+  people.push({ id: Date.now(), name, cityKey: cityEl.value });
+  savePeople();
+  nameEl.value = "";
+  cityEl.value = "";
+  renderTeamPanel();
+  renderGrid();
+}
+
+function removePerson(idx) {
+  people.splice(idx, 1);
+  savePeople();
+  renderTeamPanel();
+  renderGrid();
+}
+
+function reassignPerson(idx, newCityKey) {
+  people[idx].cityKey = newCityKey;
+  savePeople();
+  // update unassigned style live
+  const selects = document.querySelectorAll(".person-city-select");
+  if (selects[idx]) selects[idx].className = "person-city-select" + (newCityKey ? "" : " unassigned");
+  renderGrid();
+}
+
+// ── Clock grid ────────────────────────────────────────────────────────────
 function renderGrid() {
   const grid = document.getElementById("grid");
   const hint = document.getElementById("emptyHint");
@@ -329,19 +699,35 @@ function renderGrid() {
   hint.style.display = selected.length ? "none" : "block";
 
   selected.forEach((item, i) => {
+    const key = cityKey(item);
+    const assignedPeople = people.filter(p => p.cityKey === key);
+
+    let peopleHTML = "";
+    if (assignedPeople.length) {
+      const chips = assignedPeople.map(p =>
+        `<div class="card-person">
+          ${avatarHTML(p.name, 'sm')}
+          <span class="card-person-name">${escHtml(p.name)}</span>
+        </div>`
+      ).join("");
+      peopleHTML = `<div class="card-people">${chips}</div>`;
+    }
+
     const card = document.createElement("div");
     card.className = "card";
     card.id = `card-${i}`;
     card.innerHTML = `
-      <button class="card-remove" title="Remove" onclick="removeCity(${i})">✕</button>
-      <div class="card-city">${item.city}</div>
-      <div class="card-region">${item.region}</div>
+      <button class="card-remove" title="Remove city" onclick="removeCity(${i})">✕</button>
+      <div class="card-city">${escHtml(item.city)}</div>
+      <div class="card-region">${escHtml(item.region)}</div>
       <div class="card-time" id="time-${i}">--:--:--</div>
       <div class="card-date" id="date-${i}"></div>
       <div class="card-offset" id="offset-${i}"></div>
+      ${peopleHTML}
     `;
     grid.appendChild(card);
   });
+
   updateClocks();
 }
 
@@ -349,12 +735,10 @@ function updateClocks() {
   const now = new Date();
   selected.forEach((item, i) => {
     const timeFmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: item.tz,
-      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+      timeZone: item.tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
     });
     const dateFmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: item.tz,
-      weekday: "short", day: "numeric", month: "short", year: "numeric",
+      timeZone: item.tz, weekday: "short", day: "numeric", month: "short", year: "numeric",
     });
     const offsetFmt = new Intl.DateTimeFormat("en-GB", {
       timeZone: item.tz, timeZoneName: "shortOffset",
@@ -367,30 +751,25 @@ function updateClocks() {
 
     tel.textContent = timeFmt.format(now);
     del.textContent = dateFmt.format(now);
-
-    // extract UTC offset string
     const parts = offsetFmt.formatToParts(now);
     const offPart = parts.find(p => p.type === "timeZoneName");
     oel.textContent = offPart ? offPart.value : "";
   });
 }
 
-// ── Add / Remove ───────────────────────────────────────────────────────────
+// ── Add / Remove cities ───────────────────────────────────────────────────
 function addSelectedCity() {
   let toAdd = pendingCity;
 
   if (!toAdd) {
-    // try exact match on input text
     const val = document.getElementById("cityInput").value.trim().toLowerCase();
     if (!val) return;
     toAdd = CITIES.find(([c]) => c.toLowerCase() === val);
     if (!toAdd) {
-      // pick first filtered match
-      const inp = document.getElementById("cityInput").value.trim().toLowerCase();
       const match = CITIES.find(([c, tz, r]) =>
-        c.toLowerCase().includes(inp) || tz.toLowerCase().includes(inp) || r.toLowerCase().includes(inp)
+        c.toLowerCase().includes(val) || tz.toLowerCase().includes(val) || r.toLowerCase().includes(val)
       );
-      if (!match) { flashInput(); return; }
+      if (!match) { flashEl(document.getElementById("cityInput")); return; }
       toAdd = match;
     }
   }
@@ -398,41 +777,51 @@ function addSelectedCity() {
   const [city, tz, region] = toAdd;
   if (!selected.some(s => s.city === city && s.tz === tz)) {
     selected.push({ city, tz, region });
-    save();
+    saveCities();
     renderGrid();
+    renderTeamPanel();
   }
-  clearInput();
+  clearCityInput();
 }
 
 function removeCity(i) {
+  const key = cityKey(selected[i]);
+  // Unassign people who were in this city
+  people.forEach(p => { if (p.cityKey === key) p.cityKey = ""; });
+  savePeople();
   selected.splice(i, 1);
-  save();
+  saveCities();
   renderGrid();
+  renderTeamPanel();
 }
 
-function flashInput() {
-  const inp = document.getElementById("cityInput");
-  inp.style.borderColor = "#f87171";
-  setTimeout(() => inp.style.borderColor = "", 600);
+// ── Utilities ─────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-function clearInput() {
+function flashEl(el) {
+  el.style.borderColor = "#f87171";
+  setTimeout(() => el.style.borderColor = "", 700);
+}
+
+function clearCityInput() {
   document.getElementById("cityInput").value = "";
   pendingCity = null;
   closeDropdown();
 }
 
-// ── Autocomplete ───────────────────────────────────────────────────────────
+// ── Autocomplete ──────────────────────────────────────────────────────────
 function openDropdown(items) {
   const dd = document.getElementById("dropdown");
   dd.innerHTML = "";
   activeDropdownIndex = -1;
   filteredCities = items;
 
-  items.slice(0, 60).forEach(([city, tz, region], i) => {
+  items.slice(0, 60).forEach(([city, tz, region]) => {
     const div = document.createElement("div");
     div.className = "dropdown-item";
-    div.innerHTML = `${city} <small>${region}</small>`;
+    div.innerHTML = `${escHtml(city)} <small>${escHtml(region)}</small>`;
     div.onmousedown = (e) => {
       e.preventDefault();
       pendingCity = [city, tz, region];
@@ -490,12 +879,18 @@ document.getElementById("cityInput").addEventListener("keydown", function (e) {
   }
 });
 
+document.getElementById("personNameInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") addPerson();
+});
+
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".autocomplete-wrap")) closeDropdown();
 });
 
-// ── Tick ───────────────────────────────────────────────────────────────────
+// ── Boot ──────────────────────────────────────────────────────────────────
 loadSaved();
+restoreTeamState();
+renderTeamPanel();
 renderGrid();
 setInterval(updateClocks, 1000);
 </script>
