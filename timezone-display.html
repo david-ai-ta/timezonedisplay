@@ -30,24 +30,38 @@
 
     body {
       font-family: 'DM Sans', system-ui, sans-serif;
-      background:
-        radial-gradient(ellipse 70% 50% at 15% 5%, rgba(200,164,106,0.045) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 50% at 85% 100%, rgba(74,120,200,0.04) 0%, transparent 55%),
-        #07080C;
+      background: #07080C;
       color: var(--text-primary);
       min-height: 100vh;
     }
 
-    .app {
-      max-width: 1160px;
-      margin: 0 auto;
-      padding: 52px 24px 96px;
+    /* ── Globe hero ── */
+    #globe-section {
+      position: relative;
+      width: 100%;
+      height: 580px;
+      overflow: hidden;
+      cursor: grab;
+      background: radial-gradient(ellipse 80% 80% at 50% 60%, #0d1530 0%, #07080C 70%);
+    }
+    #globe-section:active { cursor: grabbing; }
+
+    #globe-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
-    /* ── Header ── */
-    .header {
+    .globe-header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
       text-align: center;
-      margin-bottom: 56px;
+      padding: 36px 24px 0;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(7,8,12,0.85) 0%, rgba(7,8,12,0.3) 55%, transparent 100%);
     }
 
     .header-label {
@@ -56,14 +70,14 @@
       letter-spacing: 0.35em;
       color: var(--gold);
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       opacity: 0;
       animation: rise 0.7s 0.05s ease forwards;
     }
 
     .header-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3rem, 7vw, 5rem);
+      font-size: clamp(2.8rem, 6vw, 4.6rem);
       font-weight: 600;
       color: var(--text-primary);
       letter-spacing: 0.06em;
@@ -77,24 +91,43 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      margin-top: 22px;
+      margin-top: 18px;
       opacity: 0;
       animation: rise 0.7s 0.25s ease forwards;
     }
     .header-rule-line {
-      height: 1px;
-      width: 60px;
+      height: 1px; width: 54px;
       background: linear-gradient(to right, transparent, var(--gold));
     }
     .header-rule-line:last-child {
       background: linear-gradient(to left, transparent, var(--gold));
     }
     .header-rule-dot {
-      width: 4px;
-      height: 4px;
+      width: 4px; height: 4px;
       border-radius: 50%;
       background: var(--gold);
       opacity: 0.7;
+    }
+
+    .globe-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      animation: rise 1s 1.2s ease forwards;
+    }
+
+    /* ── Main app content ── */
+    .app {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 40px 24px 96px;
     }
 
     /* ── Search ── */
@@ -105,25 +138,17 @@
       animation: rise 0.7s 0.35s ease forwards;
     }
 
-    .search-row {
-      display: flex;
-      gap: 10px;
-    }
+    .search-row { display: flex; gap: 10px; }
 
-    .autocomplete-wrap {
-      position: relative;
-      flex: 1;
-    }
+    .autocomplete-wrap { position: relative; flex: 1; }
 
     .search-icon {
       position: absolute;
-      left: 14px;
-      top: 50%;
+      left: 14px; top: 50%;
       transform: translateY(-50%);
       color: var(--text-muted);
       pointer-events: none;
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
     }
 
     .search-input {
@@ -152,11 +177,9 @@
       background: var(--gold-dim);
       color: var(--gold);
       font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 600;
+      font-size: 0.88rem; font-weight: 600;
       letter-spacing: 0.05em;
-      cursor: pointer;
-      white-space: nowrap;
+      cursor: pointer; white-space: nowrap;
       transition: background 0.2s, border-color 0.2s;
     }
     .btn-add:hover {
@@ -167,15 +190,12 @@
     /* ── Dropdown ── */
     .dropdown {
       position: absolute;
-      top: calc(100% + 6px);
-      left: 0; right: 0;
+      top: calc(100% + 6px); left: 0; right: 0;
       background: var(--surface-2);
       border: 1px solid var(--border-hover);
       border-radius: var(--r-md);
-      max-height: 230px;
-      overflow-y: auto;
-      z-index: 200;
-      display: none;
+      max-height: 230px; overflow-y: auto;
+      z-index: 200; display: none;
       box-shadow: 0 20px 50px rgba(0,0,0,0.55);
     }
     .dropdown.open { display: block; animation: dropIn 0.15s ease; }
@@ -186,210 +206,141 @@
     }
 
     .dropdown-item {
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 0.87rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      padding: 10px 16px; cursor: pointer;
+      font-size: 0.87rem; color: var(--text-secondary);
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
       transition: background 0.1s, color 0.1s;
     }
     .dropdown-item:hover, .dropdown-item.active {
-      background: var(--surface-3);
-      color: var(--text-primary);
+      background: var(--surface-3); color: var(--text-primary);
     }
     .dropdown-item small { color: var(--text-muted); font-size: 0.74rem; flex-shrink: 0; }
 
     /* ── Team Panel ── */
     .team-section {
-      max-width: 820px;
-      margin: 0 auto 48px;
+      max-width: 820px; margin: 0 auto 48px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      opacity: 0;
-      animation: rise 0.7s 0.45s ease forwards;
+      border-radius: var(--r-lg); overflow: hidden;
+      opacity: 0; animation: rise 0.7s 0.45s ease forwards;
     }
 
     .team-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 20px;
-      cursor: pointer;
-      user-select: none;
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; cursor: pointer; user-select: none;
       transition: background 0.15s;
     }
     .team-header:hover { background: rgba(255,255,255,0.018); }
 
     .team-icon {
-      width: 28px;
-      height: 28px;
+      width: 28px; height: 28px;
       background: var(--gold-dim);
       border: 1px solid rgba(200,164,106,0.2);
       border-radius: var(--r-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
 
     .team-header-title {
-      font-size: 0.72rem;
-      font-weight: 600;
+      font-size: 0.72rem; font-weight: 600;
       color: var(--text-secondary);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
+      letter-spacing: 0.15em; text-transform: uppercase;
     }
 
     .team-count-badge {
       font-size: 0.68rem;
-      background: var(--surface-3);
-      color: var(--text-muted);
-      padding: 2px 8px;
-      border-radius: 20px;
+      background: var(--surface-3); color: var(--text-muted);
+      padding: 2px 8px; border-radius: 20px;
       border: 1px solid var(--border);
     }
 
     .team-toggle {
-      margin-left: auto;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
+      margin-left: auto; color: var(--text-muted);
+      display: flex; align-items: center;
       transition: transform 0.3s ease;
     }
     .team-toggle.open { transform: rotate(180deg); }
 
     .team-body {
-      display: none;
-      border-top: 1px solid var(--border);
-      padding: 20px;
+      display: none; border-top: 1px solid var(--border); padding: 20px;
     }
     .team-body.open { display: block; }
 
     .add-person-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
     }
 
     .team-input, .team-select {
-      flex: 1;
-      min-width: 120px;
-      padding: 9px 14px;
-      border-radius: var(--r-sm);
+      flex: 1; min-width: 120px;
+      padding: 9px 14px; border-radius: var(--r-sm);
       border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text-primary);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
+      background: var(--surface-2); color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      outline: none; transition: border-color 0.2s, background 0.2s;
     }
     .team-input:focus, .team-select:focus {
-      border-color: rgba(200,164,106,0.35);
-      background: var(--surface-3);
+      border-color: rgba(200,164,106,0.35); background: var(--surface-3);
     }
     .team-input::placeholder { color: var(--text-muted); }
     .team-select { cursor: pointer; }
     .team-select option { background: #10131E; }
 
     .btn-sm {
-      padding: 9px 18px;
-      border-radius: var(--r-sm);
+      padding: 9px 18px; border-radius: var(--r-sm);
       border: 1px solid rgba(200,164,106,0.25);
-      background: var(--gold-dim);
-      color: var(--gold);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
+      background: var(--gold-dim); color: var(--gold);
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
       transition: background 0.2s, border-color 0.2s;
     }
     .btn-sm:hover {
-      background: rgba(200,164,106,0.18);
-      border-color: rgba(200,164,106,0.42);
+      background: rgba(200,164,106,0.18); border-color: rgba(200,164,106,0.42);
     }
 
-    .people-list {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
+    .people-list { display: flex; flex-direction: column; gap: 7px; }
 
     .person-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: var(--r-sm);
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: var(--r-sm);
+      background: var(--surface-2); border: 1px solid var(--border);
       transition: border-color 0.2s;
     }
     .person-row:hover { border-color: var(--border-hover); }
 
     .person-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.66rem;
-      font-weight: 700;
-      color: rgba(0,0,0,0.8);
-      flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.66rem; font-weight: 700;
+      color: rgba(0,0,0,0.8); flex-shrink: 0;
     }
 
     .person-name {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      min-width: 80px;
+      font-size: 0.88rem; font-weight: 500;
+      color: var(--text-primary); min-width: 80px;
     }
 
     .person-city-select {
-      flex: 1;
-      padding: 5px 10px;
-      border-radius: 6px;
+      flex: 1; padding: 5px 10px; border-radius: 6px;
       border: 1px solid var(--border);
-      background: var(--surface-3);
-      color: var(--text-secondary);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.82rem;
-      outline: none;
-      cursor: pointer;
+      background: var(--surface-3); color: var(--text-secondary);
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+      outline: none; cursor: pointer;
     }
     .person-city-select:focus { border-color: rgba(200,164,106,0.35); }
     .person-city-select.unassigned { color: #D4813A; border-color: rgba(212,129,58,0.3); }
 
     .btn-remove-person {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
-      transition: color 0.15s;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
+      background: none; border: none; color: var(--text-muted);
+      font-size: 0.9rem; cursor: pointer; padding: 4px; line-height: 1;
+      transition: color 0.15s; flex-shrink: 0;
+      display: flex; align-items: center;
     }
     .btn-remove-person:hover { color: var(--red); }
 
     .people-empty {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      text-align: center;
-      padding: 14px 0 6px;
-      font-style: italic;
+      font-size: 0.82rem; color: var(--text-muted);
+      text-align: center; padding: 14px 0 6px; font-style: italic;
     }
 
     /* ── Grid ── */
@@ -405,12 +356,9 @@
     }
 
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--r-lg);
-      position: relative;
-      display: flex;
-      flex-direction: column;
+      position: relative; display: flex; flex-direction: column;
       overflow: hidden;
       transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
       animation: cardIn 0.5s ease both;
@@ -421,151 +369,89 @@
       transform: translateY(-2px);
     }
 
-    /* Top phase accent bar */
-    .card-bar {
-      height: 2px;
-      flex-shrink: 0;
-      transition: background 1s ease;
-    }
-    .card--dawn  .card-bar { background: linear-gradient(90deg, transparent, #F5C28A 50%, transparent); }
-    .card--day   .card-bar { background: linear-gradient(90deg, transparent, #9BC8E8 50%, transparent); }
-    .card--dusk  .card-bar { background: linear-gradient(90deg, transparent, #E89060 50%, transparent); }
-    .card--night .card-bar { background: linear-gradient(90deg, transparent, #7080CC 50%, transparent); }
+    .card-bar { height: 2px; flex-shrink: 0; }
+    .card--dawn  .card-bar { background: linear-gradient(90deg,transparent,#F5C28A 50%,transparent); }
+    .card--day   .card-bar { background: linear-gradient(90deg,transparent,#9BC8E8 50%,transparent); }
+    .card--dusk  .card-bar { background: linear-gradient(90deg,transparent,#E89060 50%,transparent); }
+    .card--night .card-bar { background: linear-gradient(90deg,transparent,#7080CC 50%,transparent); }
 
-    .card-inner {
-      padding: 20px 20px 18px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+    .card-inner { padding: 20px 20px 18px; flex: 1; display: flex; flex-direction: column; }
 
     .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 18px;
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 18px;
     }
 
     .card-city {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1.1;
-      letter-spacing: 0.015em;
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--text-primary); line-height: 1.1; letter-spacing: 0.015em;
     }
 
     .card-region {
-      font-size: 0.63rem;
-      color: var(--text-muted);
-      margin-top: 3px;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      font-weight: 500;
+      font-size: 0.63rem; color: var(--text-muted);
+      margin-top: 3px; letter-spacing: 0.13em;
+      text-transform: uppercase; font-weight: 500;
     }
 
     .card-remove {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 2px 0 2px 8px;
-      transition: color 0.15s;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
+      background: none; border: none; color: var(--text-muted);
+      cursor: pointer; padding: 2px 0 2px 8px;
+      transition: color 0.15s; flex-shrink: 0;
+      display: flex; align-items: center;
     }
     .card-remove:hover { color: var(--red); }
 
     .card-time {
       font-family: 'DM Mono', monospace;
-      font-size: clamp(2rem, 3.2vw, 2.5rem);
-      font-weight: 400;
-      color: var(--text-primary);
-      letter-spacing: -0.01em;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
+      font-size: clamp(2rem, 3.2vw, 2.5rem); font-weight: 400;
+      color: var(--text-primary); letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums; line-height: 1;
     }
 
-    .card-time-sec {
-      font-size: 0.52em;
-      opacity: 0.38;
-    }
+    .card-time-sec { font-size: 0.52em; opacity: 0.38; }
 
     .card-meta {
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      margin-top: 10px; display: flex;
+      align-items: center; gap: 8px; flex-wrap: wrap;
     }
 
-    .card-date {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      letter-spacing: 0.03em;
-    }
+    .card-date { font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 0.03em; }
 
     .card-offset {
-      font-size: 0.62rem;
-      color: var(--text-muted);
-      background: var(--surface-3);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 7px;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.04em;
+      font-size: 0.62rem; color: var(--text-muted);
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 7px;
+      font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
     }
 
     .card-people {
-      margin-top: 16px;
-      padding-top: 14px;
+      margin-top: 16px; padding-top: 14px;
       border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
+      display: flex; flex-direction: column; gap: 7px;
     }
 
-    .card-person {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .card-person { display: flex; align-items: center; gap: 8px; }
 
     .card-person-avatar {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.57rem;
-      font-weight: 700;
-      color: rgba(0,0,0,0.8);
-      flex-shrink: 0;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.57rem; font-weight: 700;
+      color: rgba(0,0,0,0.8); flex-shrink: 0;
     }
 
-    .card-person-name {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-    }
+    .card-person-name { font-size: 0.78rem; color: var(--text-secondary); }
 
-    /* ── Empty state ── */
     .empty-hint {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      margin-top: 72px;
-      font-style: italic;
+      text-align: center; color: var(--text-muted);
+      font-size: 0.88rem; margin-top: 72px; font-style: italic;
     }
 
-    /* ── Animations ── */
     @keyframes rise {
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
@@ -574,10 +460,10 @@
 </head>
 <body>
 
-<div class="app">
-
-  <!-- Header -->
-  <header class="header">
+<!-- 3D Globe Hero -->
+<div id="globe-section">
+  <canvas id="globe-canvas"></canvas>
+  <div class="globe-header">
     <p class="header-label">Global Time Zones</p>
     <h1 class="header-title">World Clock</h1>
     <div class="header-rule">
@@ -585,7 +471,12 @@
       <div class="header-rule-dot"></div>
       <div class="header-rule-line"></div>
     </div>
-  </header>
+  </div>
+  <p class="globe-hint">drag to rotate</p>
+</div>
+
+<!-- App Content -->
+<div class="app">
 
   <!-- Search -->
   <div class="search-wrap">
@@ -640,117 +531,122 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
-// ── Timezone data ─────────────────────────────────────────────────────────
+// ── City data  [name, tz, region, lat, lng] ────────────────────────────────
 const CITIES = [
-  ["Abu Dhabi","Asia/Dubai","UAE"],
-  ["Accra","Africa/Accra","Ghana"],
-  ["Addis Ababa","Africa/Addis_Ababa","Ethiopia"],
-  ["Adelaide","Australia/Adelaide","Australia"],
-  ["Amsterdam","Europe/Amsterdam","Netherlands"],
-  ["Anchorage","America/Anchorage","USA"],
-  ["Athens","Europe/Athens","Greece"],
-  ["Atlanta","America/New_York","USA"],
-  ["Auckland","Pacific/Auckland","New Zealand"],
-  ["Baghdad","Asia/Baghdad","Iraq"],
-  ["Baku","Asia/Baku","Azerbaijan"],
-  ["Bangkok","Asia/Bangkok","Thailand"],
-  ["Barcelona","Europe/Madrid","Spain"],
-  ["Beijing","Asia/Shanghai","China"],
-  ["Beirut","Asia/Beirut","Lebanon"],
-  ["Berlin","Europe/Berlin","Germany"],
-  ["Bogotá","America/Bogota","Colombia"],
-  ["Brisbane","Australia/Brisbane","Australia"],
-  ["Brussels","Europe/Brussels","Belgium"],
-  ["Bucharest","Europe/Bucharest","Romania"],
-  ["Budapest","Europe/Budapest","Hungary"],
-  ["Buenos Aires","America/Argentina/Buenos_Aires","Argentina"],
-  ["Cairo","Africa/Cairo","Egypt"],
-  ["Calgary","America/Edmonton","Canada"],
-  ["Cape Town","Africa/Johannesburg","South Africa"],
-  ["Caracas","America/Caracas","Venezuela"],
-  ["Casablanca","Africa/Casablanca","Morocco"],
-  ["Chicago","America/Chicago","USA"],
-  ["Colombo","Asia/Colombo","Sri Lanka"],
-  ["Copenhagen","Europe/Copenhagen","Denmark"],
-  ["Dallas","America/Chicago","USA"],
-  ["Dar es Salaam","Africa/Dar_es_Salaam","Tanzania"],
-  ["Delhi","Asia/Kolkata","India"],
-  ["Denver","America/Denver","USA"],
-  ["Dhaka","Asia/Dhaka","Bangladesh"],
-  ["Dubai","Asia/Dubai","UAE"],
-  ["Dublin","Europe/Dublin","Ireland"],
-  ["Edmonton","America/Edmonton","Canada"],
-  ["Frankfurt","Europe/Berlin","Germany"],
-  ["Guatemala City","America/Guatemala","Guatemala"],
-  ["Hanoi","Asia/Ho_Chi_Minh","Vietnam"],
-  ["Havana","America/Havana","Cuba"],
-  ["Helsinki","Europe/Helsinki","Finland"],
-  ["Ho Chi Minh City","Asia/Ho_Chi_Minh","Vietnam"],
-  ["Hong Kong","Asia/Hong_Kong","China"],
-  ["Honolulu","Pacific/Honolulu","USA"],
-  ["Houston","America/Chicago","USA"],
-  ["Istanbul","Europe/Istanbul","Turkey"],
-  ["Jakarta","Asia/Jakarta","Indonesia"],
-  ["Jerusalem","Asia/Jerusalem","Israel"],
-  ["Johannesburg","Africa/Johannesburg","South Africa"],
-  ["Kabul","Asia/Kabul","Afghanistan"],
-  ["Karachi","Asia/Karachi","Pakistan"],
-  ["Kathmandu","Asia/Kathmandu","Nepal"],
-  ["Kuala Lumpur","Asia/Kuala_Lumpur","Malaysia"],
-  ["Kuwait City","Asia/Kuwait","Kuwait"],
-  ["Kyiv","Europe/Kiev","Ukraine"],
-  ["Lagos","Africa/Lagos","Nigeria"],
-  ["Lahore","Asia/Karachi","Pakistan"],
-  ["Lima","America/Lima","Peru"],
-  ["Lisbon","Europe/Lisbon","Portugal"],
-  ["London","Europe/London","UK"],
-  ["Los Angeles","America/Los_Angeles","USA"],
-  ["Madrid","Europe/Madrid","Spain"],
-  ["Manila","Asia/Manila","Philippines"],
-  ["Melbourne","Australia/Melbourne","Australia"],
-  ["Mexico City","America/Mexico_City","Mexico"],
-  ["Miami","America/New_York","USA"],
-  ["Milan","Europe/Rome","Italy"],
-  ["Minneapolis","America/Chicago","USA"],
-  ["Minsk","Europe/Minsk","Belarus"],
-  ["Montreal","America/Toronto","Canada"],
-  ["Moscow","Europe/Moscow","Russia"],
-  ["Mumbai","Asia/Kolkata","India"],
-  ["Nairobi","Africa/Nairobi","Kenya"],
-  ["New York","America/New_York","USA"],
-  ["Oslo","Europe/Oslo","Norway"],
-  ["Ottawa","America/Toronto","Canada"],
-  ["Paris","Europe/Paris","France"],
-  ["Perth","Australia/Perth","Australia"],
-  ["Phoenix","America/Phoenix","USA"],
-  ["Prague","Europe/Prague","Czech Republic"],
-  ["Riyadh","Asia/Riyadh","Saudi Arabia"],
-  ["Rome","Europe/Rome","Italy"],
-  ["San Francisco","America/Los_Angeles","USA"],
-  ["Santiago","America/Santiago","Chile"],
-  ["São Paulo","America/Sao_Paulo","Brazil"],
-  ["Seattle","America/Los_Angeles","USA"],
-  ["Seoul","Asia/Seoul","South Korea"],
-  ["Shanghai","Asia/Shanghai","China"],
-  ["Singapore","Asia/Singapore","Singapore"],
-  ["Sofia","Europe/Sofia","Bulgaria"],
-  ["Stockholm","Europe/Stockholm","Sweden"],
-  ["Sydney","Australia/Sydney","Australia"],
-  ["Taipei","Asia/Taipei","Taiwan"],
-  ["Tashkent","Asia/Tashkent","Uzbekistan"],
-  ["Tehran","Asia/Tehran","Iran"],
-  ["Tel Aviv","Asia/Jerusalem","Israel"],
-  ["Tokyo","Asia/Tokyo","Japan"],
-  ["Toronto","America/Toronto","Canada"],
-  ["Vancouver","America/Vancouver","Canada"],
-  ["Vienna","Europe/Vienna","Austria"],
-  ["Warsaw","Europe/Warsaw","Poland"],
-  ["Washington DC","America/New_York","USA"],
-  ["Winnipeg","America/Winnipeg","Canada"],
-  ["Yangon","Asia/Rangoon","Myanmar"],
-  ["Zurich","Europe/Zurich","Switzerland"],
+  ["Abu Dhabi","Asia/Dubai","UAE",24.47,54.37],
+  ["Accra","Africa/Accra","Ghana",5.56,-0.20],
+  ["Addis Ababa","Africa/Addis_Ababa","Ethiopia",9.03,38.74],
+  ["Adelaide","Australia/Adelaide","Australia",-34.93,138.60],
+  ["Amsterdam","Europe/Amsterdam","Netherlands",52.37,4.90],
+  ["Anchorage","America/Anchorage","USA",61.22,-149.90],
+  ["Athens","Europe/Athens","Greece",37.98,23.73],
+  ["Atlanta","America/New_York","USA",33.75,-84.39],
+  ["Auckland","Pacific/Auckland","New Zealand",-36.86,174.76],
+  ["Baghdad","Asia/Baghdad","Iraq",33.34,44.40],
+  ["Baku","Asia/Baku","Azerbaijan",40.41,49.87],
+  ["Bangkok","Asia/Bangkok","Thailand",13.75,100.52],
+  ["Barcelona","Europe/Madrid","Spain",41.39,2.15],
+  ["Beijing","Asia/Shanghai","China",39.91,116.39],
+  ["Beirut","Asia/Beirut","Lebanon",33.89,35.50],
+  ["Berlin","Europe/Berlin","Germany",52.52,13.40],
+  ["Bogotá","America/Bogota","Colombia",4.71,-74.07],
+  ["Brisbane","Australia/Brisbane","Australia",-27.47,153.02],
+  ["Brussels","Europe/Brussels","Belgium",50.85,4.35],
+  ["Bucharest","Europe/Bucharest","Romania",44.43,26.10],
+  ["Budapest","Europe/Budapest","Hungary",47.50,19.04],
+  ["Buenos Aires","America/Argentina/Buenos_Aires","Argentina",-34.61,-58.37],
+  ["Cairo","Africa/Cairo","Egypt",30.06,31.25],
+  ["Calgary","America/Edmonton","Canada",51.05,-114.07],
+  ["Cape Town","Africa/Johannesburg","South Africa",-33.93,18.42],
+  ["Caracas","America/Caracas","Venezuela",10.48,-66.88],
+  ["Casablanca","Africa/Casablanca","Morocco",33.59,-7.62],
+  ["Chicago","America/Chicago","USA",41.85,-87.65],
+  ["Colombo","Asia/Colombo","Sri Lanka",6.93,79.85],
+  ["Copenhagen","Europe/Copenhagen","Denmark",55.68,12.57],
+  ["Dallas","America/Chicago","USA",32.79,-96.77],
+  ["Dar es Salaam","Africa/Dar_es_Salaam","Tanzania",-6.80,39.27],
+  ["Delhi","Asia/Kolkata","India",28.67,77.22],
+  ["Denver","America/Denver","USA",39.74,-104.98],
+  ["Dhaka","Asia/Dhaka","Bangladesh",23.72,90.41],
+  ["Dubai","Asia/Dubai","UAE",25.23,55.28],
+  ["Dublin","Europe/Dublin","Ireland",53.33,-6.25],
+  ["Edmonton","America/Edmonton","Canada",53.55,-113.47],
+  ["Frankfurt","Europe/Berlin","Germany",50.11,8.68],
+  ["Guatemala City","America/Guatemala","Guatemala",14.64,-90.51],
+  ["Hanoi","Asia/Ho_Chi_Minh","Vietnam",21.03,105.85],
+  ["Havana","America/Havana","Cuba",23.13,-82.38],
+  ["Helsinki","Europe/Helsinki","Finland",60.17,24.94],
+  ["Ho Chi Minh City","Asia/Ho_Chi_Minh","Vietnam",10.82,106.63],
+  ["Hong Kong","Asia/Hong_Kong","China",22.28,114.16],
+  ["Honolulu","Pacific/Honolulu","USA",21.31,-157.86],
+  ["Houston","America/Chicago","USA",29.76,-95.37],
+  ["Istanbul","Europe/Istanbul","Turkey",41.01,28.95],
+  ["Jakarta","Asia/Jakarta","Indonesia",-6.21,106.85],
+  ["Jerusalem","Asia/Jerusalem","Israel",31.78,35.23],
+  ["Johannesburg","Africa/Johannesburg","South Africa",-26.20,28.04],
+  ["Kabul","Asia/Kabul","Afghanistan",34.53,69.17],
+  ["Karachi","Asia/Karachi","Pakistan",24.86,67.01],
+  ["Kathmandu","Asia/Kathmandu","Nepal",27.72,85.32],
+  ["Kuala Lumpur","Asia/Kuala_Lumpur","Malaysia",3.15,101.71],
+  ["Kuwait City","Asia/Kuwait","Kuwait",29.37,47.99],
+  ["Kyiv","Europe/Kiev","Ukraine",50.45,30.52],
+  ["Lagos","Africa/Lagos","Nigeria",6.45,3.47],
+  ["Lahore","Asia/Karachi","Pakistan",31.56,74.34],
+  ["Lima","America/Lima","Peru",-12.05,-77.04],
+  ["Lisbon","Europe/Lisbon","Portugal",38.72,-9.13],
+  ["London","Europe/London","UK",51.51,-0.13],
+  ["Los Angeles","America/Los_Angeles","USA",34.05,-118.24],
+  ["Madrid","Europe/Madrid","Spain",40.42,-3.70],
+  ["Manila","Asia/Manila","Philippines",14.60,120.98],
+  ["Melbourne","Australia/Melbourne","Australia",-37.82,144.97],
+  ["Mexico City","America/Mexico_City","Mexico",19.43,-99.13],
+  ["Miami","America/New_York","USA",25.77,-80.19],
+  ["Milan","Europe/Rome","Italy",45.46,9.19],
+  ["Minneapolis","America/Chicago","USA",44.98,-93.27],
+  ["Minsk","Europe/Minsk","Belarus",53.90,27.57],
+  ["Montreal","America/Toronto","Canada",45.51,-73.55],
+  ["Moscow","Europe/Moscow","Russia",55.75,37.62],
+  ["Mumbai","Asia/Kolkata","India",19.08,72.88],
+  ["Nairobi","Africa/Nairobi","Kenya",-1.28,36.82],
+  ["New York","America/New_York","USA",40.71,-74.01],
+  ["Oslo","Europe/Oslo","Norway",59.91,10.75],
+  ["Ottawa","America/Toronto","Canada",45.42,-75.69],
+  ["Paris","Europe/Paris","France",48.86,2.35],
+  ["Perth","Australia/Perth","Australia",-31.95,115.86],
+  ["Phoenix","America/Phoenix","USA",33.44,-112.07],
+  ["Prague","Europe/Prague","Czech Republic",50.09,14.42],
+  ["Riyadh","Asia/Riyadh","Saudi Arabia",24.69,46.72],
+  ["Rome","Europe/Rome","Italy",41.90,12.48],
+  ["San Francisco","America/Los_Angeles","USA",37.77,-122.42],
+  ["Santiago","America/Santiago","Chile",-33.46,-70.65],
+  ["São Paulo","America/Sao_Paulo","Brazil",-23.55,-46.63],
+  ["Seattle","America/Los_Angeles","USA",47.61,-122.33],
+  ["Seoul","Asia/Seoul","South Korea",37.57,126.98],
+  ["Shanghai","Asia/Shanghai","China",31.23,121.47],
+  ["Singapore","Asia/Singapore","Singapore",1.28,103.85],
+  ["Sofia","Europe/Sofia","Bulgaria",42.70,23.32],
+  ["Stockholm","Europe/Stockholm","Sweden",59.33,18.07],
+  ["Sydney","Australia/Sydney","Australia",-33.87,151.21],
+  ["Taipei","Asia/Taipei","Taiwan",25.04,121.56],
+  ["Tashkent","Asia/Tashkent","Uzbekistan",41.30,69.27],
+  ["Tehran","Asia/Tehran","Iran",35.69,51.42],
+  ["Tel Aviv","Asia/Jerusalem","Israel",32.08,34.78],
+  ["Tokyo","Asia/Tokyo","Japan",35.69,139.69],
+  ["Toronto","America/Toronto","Canada",43.70,-79.42],
+  ["Vancouver","America/Vancouver","Canada",49.25,-123.12],
+  ["Vienna","Europe/Vienna","Austria",48.21,16.37],
+  ["Warsaw","Europe/Warsaw","Poland",52.23,21.01],
+  ["Washington DC","America/New_York","USA",38.89,-77.03],
+  ["Winnipeg","America/Winnipeg","Canada",49.90,-97.14],
+  ["Yangon","Asia/Rangoon","Myanmar",16.87,96.19],
+  ["Zurich","Europe/Zurich","Switzerland",47.38,8.55],
 ];
+
+// ── Coordinate lookup ─────────────────────────────────────────────────────
+const CITY_COORDS = {};
+CITIES.forEach(([city,,, lat, lng]) => { if (lat != null) CITY_COORDS[city] = [lat, lng]; });
 
 // ── State ─────────────────────────────────────────────────────────────────
 const STORAGE_CITIES    = "worldclock_cities";
@@ -759,7 +655,6 @@ const STORAGE_TEAM_OPEN = "worldclock_team_open";
 
 let selected = [];
 let people   = [];
-
 let activeDropdownIndex = -1;
 let filteredCities = [];
 let pendingCity = null;
@@ -768,25 +663,19 @@ let pendingCity = null;
 function cityKey(c) { return c.city + "|" + c.tz; }
 
 function loadSaved() {
-  try {
-    const rc = localStorage.getItem(STORAGE_CITIES);
-    if (rc) selected = JSON.parse(rc);
-  } catch { selected = []; }
-
+  try { const r = localStorage.getItem(STORAGE_CITIES); if (r) selected = JSON.parse(r); }
+  catch { selected = []; }
   if (!selected.length) {
     selected = [
-      { city: "New York",  tz: "America/New_York",  region: "USA" },
-      { city: "London",    tz: "Europe/London",      region: "UK" },
-      { city: "Dubai",     tz: "Asia/Dubai",         region: "UAE" },
-      { city: "Singapore", tz: "Asia/Singapore",     region: "Singapore" },
-      { city: "Tokyo",     tz: "Asia/Tokyo",         region: "Japan" },
+      {city:"New York",  tz:"America/New_York",  region:"USA"},
+      {city:"London",    tz:"Europe/London",      region:"UK"},
+      {city:"Dubai",     tz:"Asia/Dubai",         region:"UAE"},
+      {city:"Singapore", tz:"Asia/Singapore",     region:"Singapore"},
+      {city:"Tokyo",     tz:"Asia/Tokyo",         region:"Japan"},
     ];
   }
-
-  try {
-    const rp = localStorage.getItem(STORAGE_PEOPLE);
-    if (rp) people = JSON.parse(rp);
-  } catch { people = []; }
+  try { const r = localStorage.getItem(STORAGE_PEOPLE); if (r) people = JSON.parse(r); }
+  catch { people = []; }
 }
 
 function saveCities() { localStorage.setItem(STORAGE_CITIES, JSON.stringify(selected)); }
@@ -813,15 +702,18 @@ function initials(name) {
 function avatarHTML(name, size) {
   const color = nameToColor(name);
   const ini   = initials(name);
-  return `<div class="${size === 'sm' ? 'card-person-avatar' : 'person-avatar'}" style="background:${color}">${ini}</div>`;
+  return `<div class="${size==='sm'?'card-person-avatar':'person-avatar'}" style="background:${color}">${ini}</div>`;
+}
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
 }
 
 // ── Day/night phase ───────────────────────────────────────────────────────
 function getDayPhase(tz) {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: tz, hour: 'numeric', hour12: false
-  }).formatToParts(new Date());
-  const h = parseInt(parts.find(p => p.type === 'hour').value, 10);
+  const parts = new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',hour12:false}).formatToParts(new Date());
+  const h = parseInt(parts.find(p=>p.type==='hour').value, 10);
   if (h >= 5  && h < 9)  return 'dawn';
   if (h >= 9  && h < 18) return 'day';
   if (h >= 18 && h < 21) return 'dusk';
@@ -830,40 +722,36 @@ function getDayPhase(tz) {
 
 // ── Team panel ────────────────────────────────────────────────────────────
 function toggleTeam() {
-  const body   = document.getElementById("teamBody");
-  const toggle = document.getElementById("teamToggle");
-  const isOpen = body.classList.toggle("open");
-  toggle.classList.toggle("open", isOpen);
-  localStorage.setItem(STORAGE_TEAM_OPEN, isOpen ? "1" : "0");
+  const body = document.getElementById("teamBody");
+  const tog  = document.getElementById("teamToggle");
+  const open = body.classList.toggle("open");
+  tog.classList.toggle("open", open);
+  localStorage.setItem(STORAGE_TEAM_OPEN, open ? "1" : "0");
 }
 
 function restoreTeamState() {
-  const open = localStorage.getItem(STORAGE_TEAM_OPEN) !== "0";
-  if (open) {
+  if (localStorage.getItem(STORAGE_TEAM_OPEN) !== "0") {
     document.getElementById("teamBody").classList.add("open");
     document.getElementById("teamToggle").classList.add("open");
   }
 }
 
 function renderTeamPanel() {
-  const badge = document.getElementById("teamCountBadge");
-  badge.textContent = `${people.length} ${people.length === 1 ? "person" : "people"}`;
+  document.getElementById("teamCountBadge").textContent =
+    `${people.length} ${people.length===1?"person":"people"}`;
 
-  const sel  = document.getElementById("personCitySelect");
+  const sel = document.getElementById("personCitySelect");
   const prev = sel.value;
   sel.innerHTML = `<option value="">— assign to city —</option>`;
   selected.forEach(c => {
-    const k = cityKey(c);
     const opt = document.createElement("option");
-    opt.value = k;
-    opt.textContent = `${c.city} (${c.region})`;
+    opt.value = cityKey(c); opt.textContent = `${c.city} (${c.region})`;
     sel.appendChild(opt);
   });
   if (prev) sel.value = prev;
 
   const list = document.getElementById("peopleList");
   list.innerHTML = "";
-
   if (!people.length) {
     list.innerHTML = `<p class="people-empty">No team members yet. Add someone above.</p>`;
     return;
@@ -873,26 +761,22 @@ function renderTeamPanel() {
     const cityExists = p.cityKey && selected.some(c => cityKey(c) === p.cityKey);
     const row = document.createElement("div");
     row.className = "person-row";
-
     let cityOptions = `<option value="">— Unassigned —</option>`;
     selected.forEach(c => {
       const k = cityKey(c);
-      cityOptions += `<option value="${k}" ${p.cityKey === k ? "selected" : ""}>${c.city} (${c.region})</option>`;
+      cityOptions += `<option value="${k}" ${p.cityKey===k?"selected":""}>${c.city} (${c.region})</option>`;
     });
-
     row.innerHTML = `
-      ${avatarHTML(p.name, 'lg')}
+      ${avatarHTML(p.name,'lg')}
       <span class="person-name">${escHtml(p.name)}</span>
-      <select class="person-city-select ${!cityExists ? 'unassigned' : ''}"
-              onchange="reassignPerson(${idx}, this.value)">
+      <select class="person-city-select ${!cityExists?'unassigned':''}" onchange="reassignPerson(${idx},this.value)">
         ${cityOptions}
       </select>
       <button class="btn-remove-person" title="Remove" onclick="removePerson(${idx})">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
-      </button>
-    `;
+      </button>`;
     list.appendChild(row);
   });
 }
@@ -902,27 +786,19 @@ function addPerson() {
   const cityEl = document.getElementById("personCitySelect");
   const name = nameEl.value.trim();
   if (!name) { flashEl(nameEl); return; }
-
-  people.push({ id: Date.now(), name, cityKey: cityEl.value });
-  savePeople();
-  nameEl.value = "";
-  cityEl.value = "";
-  renderTeamPanel();
-  renderGrid();
+  people.push({id: Date.now(), name, cityKey: cityEl.value});
+  savePeople(); nameEl.value = ""; cityEl.value = "";
+  renderTeamPanel(); renderGrid();
 }
 
 function removePerson(idx) {
-  people.splice(idx, 1);
-  savePeople();
-  renderTeamPanel();
-  renderGrid();
+  people.splice(idx, 1); savePeople(); renderTeamPanel(); renderGrid();
 }
 
 function reassignPerson(idx, newCityKey) {
-  people[idx].cityKey = newCityKey;
-  savePeople();
-  const selects = document.querySelectorAll(".person-city-select");
-  if (selects[idx]) selects[idx].className = "person-city-select" + (newCityKey ? "" : " unassigned");
+  people[idx].cityKey = newCityKey; savePeople();
+  const sels = document.querySelectorAll(".person-city-select");
+  if (sels[idx]) sels[idx].className = "person-city-select" + (newCityKey ? "" : " unassigned");
   renderGrid();
 }
 
@@ -936,14 +812,10 @@ function renderGrid() {
   selected.forEach((item, i) => {
     const key = cityKey(item);
     const assignedPeople = people.filter(p => p.cityKey === key);
-
     let peopleHTML = "";
     if (assignedPeople.length) {
       const chips = assignedPeople.map(p =>
-        `<div class="card-person">
-          ${avatarHTML(p.name, 'sm')}
-          <span class="card-person-name">${escHtml(p.name)}</span>
-        </div>`
+        `<div class="card-person">${avatarHTML(p.name,'sm')}<span class="card-person-name">${escHtml(p.name)}</span></div>`
       ).join("");
       peopleHTML = `<div class="card-people">${chips}</div>`;
     }
@@ -973,47 +845,38 @@ function renderGrid() {
           <span class="card-offset" id="offset-${i}"></span>
         </div>
         ${peopleHTML}
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
   });
 
   updateClocks();
+  updateGlobeMarkers();
 }
 
 function updateClocks() {
   const now = new Date();
   selected.forEach((item, i) => {
-    const timeFmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: item.tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
-    });
-    const dateFmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: item.tz, weekday: "short", day: "numeric", month: "short", year: "numeric",
-    });
-    const offsetFmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: item.tz, timeZoneName: "shortOffset",
-    });
+    const timeFmt = new Intl.DateTimeFormat("en-GB",{timeZone:item.tz,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+    const dateFmt = new Intl.DateTimeFormat("en-GB",{timeZone:item.tz,weekday:"short",day:"numeric",month:"short",year:"numeric"});
+    const offFmt  = new Intl.DateTimeFormat("en-GB",{timeZone:item.tz,timeZoneName:"shortOffset"});
 
     const tel = document.getElementById(`time-${i}`);
     const del = document.getElementById(`date-${i}`);
     const oel = document.getElementById(`offset-${i}`);
     if (!tel) return;
 
-    const timeStr = timeFmt.format(now);
-    const lastColon = timeStr.lastIndexOf(':');
-    tel.innerHTML = timeStr.substring(0, lastColon) + `<span class="card-time-sec">:${timeStr.substring(lastColon + 1)}</span>`;
-
+    const ts = timeFmt.format(now);
+    const lc = ts.lastIndexOf(':');
+    tel.innerHTML = ts.substring(0, lc) + `<span class="card-time-sec">:${ts.substring(lc+1)}</span>`;
     del.textContent = dateFmt.format(now);
-    const parts  = offsetFmt.formatToParts(now);
-    const offPart = parts.find(p => p.type === "timeZoneName");
+    const offPart = offFmt.formatToParts(now).find(p=>p.type==="timeZoneName");
     oel.textContent = offPart ? offPart.value : "";
 
-    // Update phase class without resetting entrance animation
     const card = document.getElementById(`card-${i}`);
     if (card) {
-      const newPhase = getDayPhase(item.tz);
+      const np = getDayPhase(item.tz);
       ['dawn','day','dusk','night'].forEach(p => card.classList.remove(`card--${p}`));
-      card.classList.add(`card--${newPhase}`);
+      card.classList.add(`card--${np}`);
     }
   });
 }
@@ -1021,68 +884,53 @@ function updateClocks() {
 // ── Add / Remove cities ───────────────────────────────────────────────────
 function addSelectedCity() {
   let toAdd = pendingCity;
-
   if (!toAdd) {
     const val = document.getElementById("cityInput").value.trim().toLowerCase();
     if (!val) return;
     toAdd = CITIES.find(([c]) => c.toLowerCase() === val);
     if (!toAdd) {
-      const match = CITIES.find(([c, tz, r]) =>
+      const m = CITIES.find(([c,tz,r]) =>
         c.toLowerCase().includes(val) || tz.toLowerCase().includes(val) || r.toLowerCase().includes(val)
       );
-      if (!match) { flashEl(document.getElementById("cityInput")); return; }
-      toAdd = match;
+      if (!m) { flashEl(document.getElementById("cityInput")); return; }
+      toAdd = m;
     }
   }
-
   const [city, tz, region] = toAdd;
-  if (!selected.some(s => s.city === city && s.tz === tz)) {
-    selected.push({ city, tz, region });
-    saveCities();
-    renderGrid();
-    renderTeamPanel();
+  if (!selected.some(s => s.city===city && s.tz===tz)) {
+    selected.push({city, tz, region}); saveCities(); renderGrid(); renderTeamPanel();
   }
   clearCityInput();
 }
 
 function removeCity(i) {
   const key = cityKey(selected[i]);
-  people.forEach(p => { if (p.cityKey === key) p.cityKey = ""; });
-  savePeople();
-  selected.splice(i, 1);
-  saveCities();
-  renderGrid();
-  renderTeamPanel();
+  people.forEach(p => { if (p.cityKey===key) p.cityKey=""; });
+  savePeople(); selected.splice(i,1); saveCities(); renderGrid(); renderTeamPanel();
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────
 function escHtml(str) {
   return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
-
 function flashEl(el) {
   el.style.borderColor = "#D45A6A";
   setTimeout(() => el.style.borderColor = "", 700);
 }
-
 function clearCityInput() {
   document.getElementById("cityInput").value = "";
-  pendingCity = null;
-  closeDropdown();
+  pendingCity = null; closeDropdown();
 }
 
 // ── Autocomplete ──────────────────────────────────────────────────────────
 function openDropdown(items) {
   const dd = document.getElementById("dropdown");
-  dd.innerHTML = "";
-  activeDropdownIndex = -1;
-  filteredCities = items;
-
-  items.slice(0, 60).forEach(([city, tz, region]) => {
+  dd.innerHTML = ""; activeDropdownIndex = -1; filteredCities = items;
+  items.slice(0,60).forEach(([city, tz, region]) => {
     const div = document.createElement("div");
     div.className = "dropdown-item";
     div.innerHTML = `${escHtml(city)} <small>${escHtml(region)}</small>`;
-    div.onmousedown = (e) => {
+    div.onmousedown = e => {
       e.preventDefault();
       pendingCity = [city, tz, region];
       document.getElementById("cityInput").value = city;
@@ -1090,7 +938,6 @@ function openDropdown(items) {
     };
     dd.appendChild(div);
   });
-
   dd.classList.toggle("open", items.length > 0);
 }
 
@@ -1101,51 +948,293 @@ function closeDropdown() {
 
 function highlightDropdownItem(idx) {
   const items = document.querySelectorAll(".dropdown-item");
-  items.forEach((el, i) => el.classList.toggle("active", i === idx));
-  if (items[idx]) items[idx].scrollIntoView({ block: "nearest" });
+  items.forEach((el,i) => el.classList.toggle("active", i===idx));
+  if (items[idx]) items[idx].scrollIntoView({block:"nearest"});
 }
 
-document.getElementById("cityInput").addEventListener("input", function () {
+document.getElementById("cityInput").addEventListener("input", function() {
   pendingCity = null;
   const q = this.value.trim().toLowerCase();
   if (!q) { closeDropdown(); return; }
-  const matches = CITIES.filter(([c, tz, r]) =>
+  openDropdown(CITIES.filter(([c,tz,r]) =>
     c.toLowerCase().includes(q) || tz.toLowerCase().includes(q) || r.toLowerCase().includes(q)
-  );
-  openDropdown(matches);
+  ));
 });
 
-document.getElementById("cityInput").addEventListener("keydown", function (e) {
+document.getElementById("cityInput").addEventListener("keydown", function(e) {
   const items = document.querySelectorAll(".dropdown-item");
-  if (e.key === "ArrowDown") {
+  if (e.key==="ArrowDown") {
     e.preventDefault();
-    activeDropdownIndex = Math.min(activeDropdownIndex + 1, items.length - 1);
+    activeDropdownIndex = Math.min(activeDropdownIndex+1, items.length-1);
     highlightDropdownItem(activeDropdownIndex);
-  } else if (e.key === "ArrowUp") {
+  } else if (e.key==="ArrowUp") {
     e.preventDefault();
-    activeDropdownIndex = Math.max(activeDropdownIndex - 1, 0);
+    activeDropdownIndex = Math.max(activeDropdownIndex-1, 0);
     highlightDropdownItem(activeDropdownIndex);
-  } else if (e.key === "Enter") {
-    if (activeDropdownIndex >= 0 && filteredCities[activeDropdownIndex]) {
-      const [city, tz, region] = filteredCities[activeDropdownIndex];
-      pendingCity = [city, tz, region];
+  } else if (e.key==="Enter") {
+    if (activeDropdownIndex>=0 && filteredCities[activeDropdownIndex]) {
+      const [city,tz,region] = filteredCities[activeDropdownIndex];
+      pendingCity = [city,tz,region];
       document.getElementById("cityInput").value = city;
       closeDropdown();
-    } else {
-      addSelectedCity();
-    }
-  } else if (e.key === "Escape") {
-    closeDropdown();
+    } else { addSelectedCity(); }
+  } else if (e.key==="Escape") { closeDropdown(); }
+});
+
+document.getElementById("personNameInput").addEventListener("keydown", e => { if (e.key==="Enter") addPerson(); });
+document.addEventListener("click", e => { if (!e.target.closest(".autocomplete-wrap")) closeDropdown(); });
+
+// ── 3D Globe ──────────────────────────────────────────────────────────────
+const GLOBE_R = 2.0;
+let globeScene, globeCamera, globeRenderer, earthMesh;
+let globeMarkersGroup = null;
+let isDragging = false, prevMouse = {x:0,y:0};
+let autoRotate = true;
+let dragTimeout = null;
+const _v3 = new THREE.Vector3();
+
+function latLngTo3D(lat, lng, r) {
+  const phi   = (90 - lat) * (Math.PI / 180);
+  const theta = (lng + 180) * (Math.PI / 180);
+  return new THREE.Vector3(
+    -r * Math.sin(phi) * Math.cos(theta),
+     r * Math.cos(phi),
+     r * Math.sin(phi) * Math.sin(theta)
+  );
+}
+
+function makeCanvasSprite(drawFn, w, h) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  drawFn(c.getContext('2d'), w, h);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({map: tex, transparent: true, depthWrite: false});
+  return new THREE.Sprite(mat);
+}
+
+function makeCityDot() {
+  return makeCanvasSprite((ctx, w, h) => {
+    const cx = w/2, cy = h/2, r = w/2;
+    const g = ctx.createRadialGradient(cx,cy,0, cx,cy,r);
+    g.addColorStop(0,   'rgba(200,164,106,1.0)');
+    g.addColorStop(0.28,'rgba(200,164,106,0.85)');
+    g.addColorStop(0.6, 'rgba(200,164,106,0.3)');
+    g.addColorStop(1,   'rgba(200,164,106,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  }, 32, 32);
+}
+
+function makePersonPin(name, hexColor) {
+  return makeCanvasSprite((ctx, w, h) => {
+    const cx = w/2, cy = h/2;
+    // Glow ring
+    const gr = ctx.createRadialGradient(cx,cy,14, cx,cy,w/2);
+    gr.addColorStop(0, hexToRgba(hexColor, 0.3));
+    gr.addColorStop(1, hexToRgba(hexColor, 0));
+    ctx.fillStyle = gr; ctx.fillRect(0,0,w,h);
+    // Circle fill
+    ctx.fillStyle = hexColor;
+    ctx.beginPath(); ctx.arc(cx,cy,18,0,Math.PI*2); ctx.fill();
+    // White border
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(cx,cy,18,0,Math.PI*2); ctx.stroke();
+    // Initials
+    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    ctx.font = 'bold 15px "DM Sans",sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(initials(name), cx, cy+0.5);
+  }, 56, 56);
+}
+
+function updateGlobeMarkers() {
+  if (!globeMarkersGroup) return;
+
+  // Dispose old sprites
+  while (globeMarkersGroup.children.length) {
+    const s = globeMarkersGroup.children[0];
+    if (s.material) { if (s.material.map) s.material.map.dispose(); s.material.dispose(); }
+    globeMarkersGroup.remove(s);
   }
-});
 
-document.getElementById("personNameInput").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") addPerson();
-});
+  // City dots for all selected cities
+  selected.forEach(item => {
+    const coords = CITY_COORDS[item.city];
+    if (!coords) return;
+    const [lat, lng] = coords;
+    const dot = makeCityDot();
+    dot.position.copy(latLngTo3D(lat, lng, GLOBE_R + 0.015));
+    dot.scale.set(0.13, 0.13, 1);
+    globeMarkersGroup.add(dot);
+  });
 
-document.addEventListener("click", (e) => {
-  if (!e.target.closest(".autocomplete-wrap")) closeDropdown();
-});
+  // Person pins above their city
+  const slotCount = {};
+  people.forEach(p => {
+    if (!p.cityKey) return;
+    const cityEntry = selected.find(c => cityKey(c) === p.cityKey);
+    if (!cityEntry) return;
+    const coords = CITY_COORDS[cityEntry.city];
+    if (!coords) return;
+    const [lat, lng] = coords;
+    const slot = slotCount[p.cityKey] || 0;
+    slotCount[p.cityKey] = slot + 1;
+    // Radial offset so multiple people don't stack exactly
+    const ang  = slot * (Math.PI * 2 / 5);
+    const dist = slot === 0 ? 0 : 4; // degrees offset
+    const lat2 = lat + dist * Math.cos(ang);
+    const lng2 = lng + dist * Math.sin(ang);
+    const pin = makePersonPin(p.name, nameToColor(p.name));
+    pin.position.copy(latLngTo3D(lat2, lng2, GLOBE_R + 0.20));
+    pin.scale.set(0.26, 0.26, 1);
+    globeMarkersGroup.add(pin);
+  });
+}
+
+function initGlobe() {
+  const section = document.getElementById('globe-section');
+  const canvas  = document.getElementById('globe-canvas');
+  const W = section.clientWidth, H = section.clientHeight;
+
+  // Scene / camera / renderer
+  globeScene = new THREE.Scene();
+  globeCamera = new THREE.PerspectiveCamera(42, W/H, 0.1, 80);
+  globeCamera.position.z = 5.2;
+
+  globeRenderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true});
+  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  globeRenderer.setSize(W, H);
+  globeRenderer.setClearColor(0x000000, 0);
+
+  // Stars
+  const starPos = [];
+  for (let i = 0; i < 2200; i++) {
+    const t = Math.random() * 2 * Math.PI, p = Math.acos(2*Math.random()-1), r = 28+Math.random()*8;
+    starPos.push(r*Math.sin(p)*Math.cos(t), r*Math.cos(p), r*Math.sin(p)*Math.sin(t));
+  }
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+  globeScene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.055, transparent:true, opacity:0.65})));
+
+  // Earth sphere
+  earthMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(GLOBE_R, 72, 72),
+    new THREE.MeshPhongMaterial({
+      color: 0x0c1628,
+      emissive: 0x060c18,
+      specular: 0x1e3870,
+      shininess: 35,
+    })
+  );
+  globeScene.add(earthMesh);
+
+  // Lat/lon grid (attached to earthMesh so it rotates with it)
+  const gridGroup = new THREE.Group();
+  const latLines  = [-60,-30,0,30,60];
+  const lonLines  = [0,30,60,90,120,150,180,210,240,270,300,330];
+  const gridMat   = new THREE.LineBasicMaterial({color:0x1c2e50, transparent:true, opacity:0.45});
+  const eqMat     = new THREE.LineBasicMaterial({color:0x263d6a, transparent:true, opacity:0.65});
+
+  latLines.forEach(lat => {
+    const pts = [];
+    for (let lon=0; lon<=361; lon+=2) pts.push(latLngTo3D(lat, lon, GLOBE_R+0.002));
+    gridGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lat===0 ? eqMat : gridMat));
+  });
+  lonLines.forEach(lon => {
+    const pts = [];
+    for (let lat=-90; lat<=90; lat+=2) pts.push(latLngTo3D(lat, lon, GLOBE_R+0.002));
+    gridGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gridMat));
+  });
+  earthMesh.add(gridGroup);
+
+  // Markers group (rotates with earth)
+  globeMarkersGroup = new THREE.Group();
+  earthMesh.add(globeMarkersGroup);
+
+  // Atmosphere haze
+  globeScene.add(new THREE.Mesh(
+    new THREE.SphereGeometry(GLOBE_R * 1.07, 64, 64),
+    new THREE.MeshPhongMaterial({color:0x1845aa, transparent:true, opacity:0.055, side:THREE.BackSide})
+  ));
+  globeScene.add(new THREE.Mesh(
+    new THREE.SphereGeometry(GLOBE_R * 1.15, 64, 64),
+    new THREE.MeshBasicMaterial({color:0x071530, transparent:true, opacity:0.04, side:THREE.BackSide})
+  ));
+
+  // Lighting
+  globeScene.add(new THREE.AmbientLight(0x8899cc, 0.25));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(6, 3, 5);
+  globeScene.add(sun);
+  const fill = new THREE.DirectionalLight(0x1a3888, 0.35);
+  fill.position.set(-5, -3, -5);
+  globeScene.add(fill);
+
+  // Drag interaction
+  section.addEventListener('mousedown', e => {
+    isDragging = true; autoRotate = false;
+    prevMouse = {x: e.clientX, y: e.clientY};
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevMouse.x, dy = e.clientY - prevMouse.y;
+    earthMesh.rotation.y += dx * 0.005;
+    earthMesh.rotation.x = Math.max(-1.2, Math.min(1.2, earthMesh.rotation.x + dy * 0.005));
+    prevMouse = {x: e.clientX, y: e.clientY};
+  });
+  window.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    clearTimeout(dragTimeout);
+    dragTimeout = setTimeout(() => { autoRotate = true; }, 2500);
+  });
+
+  section.addEventListener('touchstart', e => {
+    isDragging = true; autoRotate = false;
+    prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+  }, {passive:true});
+  window.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - prevMouse.x, dy = e.touches[0].clientY - prevMouse.y;
+    earthMesh.rotation.y += dx * 0.005;
+    earthMesh.rotation.x = Math.max(-1.2, Math.min(1.2, earthMesh.rotation.x + dy * 0.005));
+    prevMouse = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+  }, {passive:true});
+  window.addEventListener('touchend', () => {
+    isDragging = false;
+    clearTimeout(dragTimeout);
+    dragTimeout = setTimeout(() => { autoRotate = true; }, 2500);
+  });
+
+  window.addEventListener('resize', () => {
+    const W2 = section.clientWidth, H2 = section.clientHeight;
+    globeCamera.aspect = W2/H2; globeCamera.updateProjectionMatrix();
+    globeRenderer.setSize(W2, H2);
+  });
+
+  updateGlobeMarkers();
+  animateGlobe();
+}
+
+function animateGlobe() {
+  requestAnimationFrame(animateGlobe);
+  if (autoRotate && !isDragging) earthMesh.rotation.y += 0.0012;
+
+  // Fade markers that rotate to the back side of the globe
+  if (globeMarkersGroup) {
+    const camWorld = globeCamera.position;
+    globeMarkersGroup.children.forEach(sprite => {
+      sprite.getWorldPosition(_v3);
+      const normal = _v3.clone().normalize();
+      const toCamera = new THREE.Vector3().subVectors(camWorld, _v3).normalize();
+      const vis = Math.max(0, Math.min(1, normal.dot(toCamera) * 5));
+      sprite.material.opacity = vis;
+    });
+  }
+
+  globeRenderer.render(globeScene, globeCamera);
+}
 
 // ── Boot ──────────────────────────────────────────────────────────────────
 loadSaved();
@@ -1153,6 +1242,16 @@ restoreTeamState();
 renderTeamPanel();
 renderGrid();
 setInterval(updateClocks, 1000);
+
+// Init globe after first paint
+requestAnimationFrame(() => {
+  if (typeof THREE !== 'undefined') {
+    initGlobe();
+  } else {
+    document.getElementById('globe-section').style.background =
+      'radial-gradient(ellipse at 50% 60%, #0d1530 0%, #07080C 80%)';
+  }
+});
 </script>
 </body>
 </html>
