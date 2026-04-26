@@ -991,6 +991,7 @@ let globeMarkersGroup = null;
 let isDragging = false, prevMouse = {x:0,y:0};
 let autoRotate = true;
 let dragTimeout = null;
+let cloudMesh = null, cloudDrift = 0;
 const _v3 = new THREE.Vector3();
 
 function latLngTo3D(lat, lng, r) {
@@ -1117,24 +1118,50 @@ function initGlobe() {
   starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
   globeScene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.055, transparent:true, opacity:0.65})));
 
-  // Earth sphere
-  earthMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(GLOBE_R, 72, 72),
-    new THREE.MeshPhongMaterial({
-      color: 0x0c1628,
-      emissive: 0x060c18,
-      specular: 0x1e3870,
-      shininess: 35,
-    })
-  );
+  // Earth sphere — ocean-blue fallback until texture loads
+  const earthMat = new THREE.MeshPhongMaterial({
+    color: 0x1a4070,
+    specular: 0x112233,
+    shininess: 12,
+  });
+  earthMesh = new THREE.Mesh(new THREE.SphereGeometry(GLOBE_R, 72, 72), earthMat);
   globeScene.add(earthMesh);
+
+  // Load textures async (unpkg + jsdelivr both serve CORS: *)
+  const tLoader = new THREE.TextureLoader();
+  function tryLoad(urls, onOk) {
+    if (!urls.length) return;
+    tLoader.load(urls[0], onOk, undefined, () => tryLoad(urls.slice(1), onOk));
+  }
+  // Blue marble day texture
+  tryLoad([
+    'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+    'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg',
+  ], tex => {
+    earthMat.map = tex;
+    earthMat.color.set(0xffffff);
+    earthMat.specular.set(0x334455);
+    earthMat.shininess = 22;
+    earthMat.needsUpdate = true;
+  });
+  // Cloud layer
+  tryLoad([
+    'https://unpkg.com/three-globe/example/img/earth-clouds.png',
+    'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-clouds.png',
+  ], cTex => {
+    cloudMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(GLOBE_R + 0.04, 64, 64),
+      new THREE.MeshPhongMaterial({map: cTex, transparent: true, opacity: 0.28, depthWrite: false})
+    );
+    globeScene.add(cloudMesh);
+  });
 
   // Lat/lon grid (attached to earthMesh so it rotates with it)
   const gridGroup = new THREE.Group();
   const latLines  = [-60,-30,0,30,60];
   const lonLines  = [0,30,60,90,120,150,180,210,240,270,300,330];
-  const gridMat   = new THREE.LineBasicMaterial({color:0x1c2e50, transparent:true, opacity:0.45});
-  const eqMat     = new THREE.LineBasicMaterial({color:0x263d6a, transparent:true, opacity:0.65});
+  const gridMat   = new THREE.LineBasicMaterial({color:0x3a5878, transparent:true, opacity:0.18});
+  const eqMat     = new THREE.LineBasicMaterial({color:0x4a70a0, transparent:true, opacity:0.28});
 
   latLines.forEach(lat => {
     const pts = [];
@@ -1162,14 +1189,11 @@ function initGlobe() {
     new THREE.MeshBasicMaterial({color:0x071530, transparent:true, opacity:0.04, side:THREE.BackSide})
   ));
 
-  // Lighting
-  globeScene.add(new THREE.AmbientLight(0x8899cc, 0.25));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.1);
-  sun.position.set(6, 3, 5);
+  // Lighting — strong sun + minimal ambient keeps dark side dark (realistic)
+  globeScene.add(new THREE.AmbientLight(0x223355, 0.15));
+  const sun = new THREE.DirectionalLight(0xfff6e8, 1.4);
+  sun.position.set(5, 3, 5);
   globeScene.add(sun);
-  const fill = new THREE.DirectionalLight(0x1a3888, 0.35);
-  fill.position.set(-5, -3, -5);
-  globeScene.add(fill);
 
   // Drag interaction
   section.addEventListener('mousedown', e => {
@@ -1219,7 +1243,14 @@ function initGlobe() {
 
 function animateGlobe() {
   requestAnimationFrame(animateGlobe);
-  if (autoRotate && !isDragging) earthMesh.rotation.y += 0.0012;
+  if (autoRotate && !isDragging) {
+    earthMesh.rotation.y += 0.0012;
+    cloudDrift += 0.00018;
+  }
+  if (cloudMesh) {
+    cloudMesh.rotation.y = earthMesh.rotation.y + cloudDrift;
+    cloudMesh.rotation.x = earthMesh.rotation.x;
+  }
 
   // Fade markers that rotate to the back side of the globe
   if (globeMarkersGroup) {
