@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07080C;
+      --surface: #0C0E17;
+      --surface-2: #10131E;
+      --border: rgba(255,255,255,0.055);
+      --border-hover: rgba(255,255,255,0.13);
+      --gold: #C8A46A;
+      --gold-dim: rgba(200,164,106,0.1);
+      --text-primary: #EDE8E0;
+      --text-secondary: #78889A;
+      --text-muted: #3C4658;
+      --r-md: 14px;
+      --r-lg: 20px;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse 70% 50% at 20% 10%, rgba(200,164,106,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 80% 90%, rgba(74,120,200,0.04) 0%, transparent 55%),
+        #07080C;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      padding: 64px 24px 48px;
+      width: 100%;
+    }
+
+    .header-label {
+      font-size: 0.67rem;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: rise 0.7s 0.05s ease forwards;
+    }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 6vw, 4.2rem);
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.06em;
+      line-height: 0.95;
+      opacity: 0;
+      animation: rise 0.7s 0.15s ease forwards;
+    }
+
+    .header-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 14px;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: rise 0.7s 0.25s ease forwards;
+    }
+
+    .header-rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+      opacity: 0;
+      animation: rise 0.7s 0.3s ease forwards;
+    }
+    .header-rule-line {
+      height: 1px; width: 54px;
+      background: linear-gradient(to right, transparent, var(--gold));
+    }
+    .header-rule-line:last-child {
+      background: linear-gradient(to left, transparent, var(--gold));
+    }
+    .header-rule-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.7;
+    }
+
+    /* ── Tools grid ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 960px;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Tool card ── */
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      opacity: 0;
+      animation: rise 0.6s ease forwards;
+    }
+    .tool-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+      transform: translateY(-3px);
+    }
+
+    .tool-card-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+      flex-shrink: 0;
+    }
+
+    .tool-card-body {
+      padding: 28px 26px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tool-icon {
+      width: 44px; height: 44px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(200,164,106,0.2);
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .tool-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    .tool-desc {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .tool-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.8;
+      transition: opacity 0.2s, gap 0.2s;
+    }
+    .tool-card:hover .tool-link { opacity: 1; gap: 10px; }
+
+    /* ── Coming soon card ── */
+    .tool-card.coming-soon {
+      pointer-events: none;
+      opacity: 0;
+      animation: rise 0.6s ease forwards;
+    }
+    .tool-card.coming-soon .tool-card-bar {
+      background: linear-gradient(90deg, transparent, rgba(120,136,154,0.3) 50%, transparent);
+    }
+    .tool-card.coming-soon .tool-icon {
+      background: rgba(120,136,154,0.06);
+      border-color: rgba(120,136,154,0.12);
+      color: var(--text-muted);
+    }
+    .tool-card.coming-soon .tool-name { color: var(--text-secondary); }
+    .coming-soon-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-top: 20px;
+      align-self: flex-start;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: auto;
+      padding: 24px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #161A28; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <p class="header-label">Your workspace</p>
+    <h1 class="header-title">Team Tools</h1>
+    <p class="header-sub">A collection of tools for distributed teams</p>
+    <div class="header-rule">
+      <div class="header-rule-line"></div>
+      <div class="header-rule-dot"></div>
+      <div class="header-rule-line"></div>
+    </div>
+  </header>
+
+  <main class="tools-grid">
+
+    <!-- World Clock -->
+    <a class="tool-card" href="timezone-display.html" style="animation-delay:0.35s">
+      <div class="tool-card-bar"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="tool-name">World Clock</div>
+        <div class="tool-desc">
+          Track time across multiple cities on an interactive 3D globe.
+          Pin team members to their locations and see everyone's local time at a glance.
+        </div>
+        <span class="tool-link">
+          Open
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Placeholder 1 -->
+    <div class="tool-card coming-soon" style="animation-delay:0.45s">
+      <div class="tool-card-bar"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="tool-name">Meeting Planner</div>
+        <div class="tool-desc">Find the best meeting time across time zones for your whole team with no overlap pain.</div>
+        <span class="coming-soon-badge">Coming soon</span>
+      </div>
+    </div>
+
+    <!-- Placeholder 2 -->
+    <div class="tool-card coming-soon" style="animation-delay:0.55s">
+      <div class="tool-card-bar"></div>
+      <div class="tool-card-body">
+        <div class="tool-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="tool-name">Team Directory</div>
+        <div class="tool-desc">A single place to see who's on the team, where they are, and how to reach them.</div>
+        <span class="coming-soon-badge">Coming soon</span>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">Team Tools &nbsp;·&nbsp; Built with Claude Code</footer>
+
+</body>
+</html>
